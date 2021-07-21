@@ -12,16 +12,15 @@
     test_remediation: "ansible"
 
 - name: "{{ test_id }}.result"
-  shell: 'corosync-cmapctl | grep "runtime.config.totem.consensus (u32) = " | sed "s/^.*= //" || true' 
+  shell: 'crm_attribute -t crm_config -G -n stonith-enabled --quiet'
   check_mode: no
-  register: result_run
-  changed_when: false
+  register: config_updated
+  changed_when: config_updated.stdout != expected[test_id]
 
 - name: "{{ test_id }}.remediate"
   shell: 'crm configure property stonith-enabled=true'
-  register: config_updated
   when:
-    - result_run.stdout != expected[test_id]
+    - config_updated is changed
     - not ansible_check_mode
 
 - block:
