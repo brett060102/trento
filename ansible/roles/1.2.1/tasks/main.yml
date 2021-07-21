@@ -11,17 +11,18 @@
     test_desc: "Fencing is enabled {{ expected[test_id] }}"
     test_remediation: "ansible"
 
+- name: "{{ test_id }}.result"
+  shell: 'corosync-cmapctl | grep "runtime.config.totem.consensus (u32) = " | sed "s/^.*= //" || true' 
+  check_mode: no
+  register: result_run
+  changed_when: false
+
 - name: "{{ test_id }}.remediate"
   shell: 'crm configure property stonith-enabled=true'
   register: config_updated
-
-- block:
-    - import_role:
-        name: post-results
   when:
-    - ansible_check_mode
-  vars:
-    status: "{{ config_updated is changed | ternary ('Failed','Passed') }}"
+    - result_run.stdout != expected[test_id]
+    - not ansible_check_mode
 
 - block:
     - import_role:
