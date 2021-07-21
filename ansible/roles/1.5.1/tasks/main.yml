@@ -1,0 +1,39 @@
+---
+
+- name: Set Test ID
+  set_fact:
+    test_id: '1.5.1'
+
+- name: "Set other facts for {{ test_id }}"
+  set_fact:
+    test_mid: "1.5"
+    test_name: "Miscellaneous checks"
+    test_desc: "/etc/hosts contains all cluster nodes {{ expected[test_id] }}"
+    test_remediation: |
+          ## Abstract
+          If using host names in the cluster configuration, it is vital to have reliable host name resolution. 
+          The cluster communication will fail, if the names are not available and that can lead to cluster failover delays. 
+          The benefit of using /etc/hosts is that your cluster becomes independent of DNS, which could be a single point of 
+          failures too.Name resolution of cluster nodes and virtual IPs is recommended to be local.
+          ## Remedation
+          Specify IP addresses of all cluster nodes in the /etc/hosts.
+          ## References
+          - Cluster installation in <pre>https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-suse-pacemaker</pre>
+
+- name: "{{ test_id }}.result"
+  shell: |
+
+    for i in $(crm_node -l | cut -d' ' -f2); do
+      if ! cat /etc/hosts |grep $i; then echo found=false; fi
+    done
+  check_mode: no
+  register: config_updated
+  changed_when: false
+
+- block:
+    - import_role:
+        name: post-results
+  when:
+    - ansible_check_mode
+  vars:
+    status: "{{ config_updated is changed | ternary ('Failed','Passed') }}"

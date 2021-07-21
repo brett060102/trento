@@ -182,3 +182,31 @@
         name: '1.4.2'
       tags:
         - 1.4.2
+
+    - name: include 1.5.1 remediate
+      import_role:
+        name: '1.5.1'
+        tasks_from: main
+      tags:
+        - 1.5.1
+
+    - name: include 1.5.2 remediate
+      import_role:
+        name: '1.5.2'
+        tasks_from: main
+      tags:
+        - 1.5.2
+
+    - name: include 1.5.3 remediate
+      import_role:
+        name: '1.5.3'
+        tasks_from: main
+      tags:
+        - 1.5.3
+
+#    - name: Global Results
+#      set_fact:
+#        global_ha_results: "{{ ha_results }}"
+#        global_tests: "{{ tests }}"
+#      tags:
+#        - always
