@@ -1,9 +1,8 @@
 ---
----
 
 - name: Set Test ID
   set_fact:
-    test_id: '1.5.1'
+    test_id: '1.5.2'
 
 - name: "Set other facts for {{ test_id }}"
   set_fact:
@@ -28,8 +27,9 @@
       if ! cat /etc/hosts |grep $i; then echo found=false; fi
     done
   check_mode: no
+
   register: config_updated
-  changed_when: false
+  changed_when: config_updated.stdout != expected[test_id]
 
 - block:
     - import_role:

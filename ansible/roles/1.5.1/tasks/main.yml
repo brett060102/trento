@@ -22,13 +22,13 @@
 
 - name: "{{ test_id }}.result"
   shell: |
-
     for i in $(crm_node -l | cut -d' ' -f2); do
       if ! cat /etc/hosts |grep $i; then echo found=false; fi
     done
   check_mode: no
+
   register: config_updated
-  changed_when: false
+  changed_when: config_updated.stdout != expected[test_id]
 
 - block:
     - import_role:
