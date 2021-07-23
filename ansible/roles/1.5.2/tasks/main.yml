@@ -22,11 +22,24 @@
 
 - name: "{{ test_id }}.result"
   shell: |
-    for i in $(crm_node -l | cut -d' ' -f2); do
-      if ! cat /etc/hosts |grep $i; then echo found=false; fi
-    done
+    function attempt_login {
+      /usr/bin/expect << 'EOF'
+      set timeout 5
+      spawn ssh -o "StrictHostKeyChecking no" hacluster@127.0.0.1 :
+      expect "assword:"
+      send -- "linux\r"
+      expect {
+      "assword:" { exit 1}
+       eof { exit 0 }
+       }
+      foreach {pid spawnid os_error_flag value} [wait] break
+      exit $value
+      EOF
+      return $?
+      }
+    # The test fails if we could successfully log into hacluster
+    if attempt_login; then echo passed; else echo blocked; fi
   check_mode: no
-
   register: config_updated
   changed_when: config_updated.stdout != expected[test_id]
 
