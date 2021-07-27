@@ -29,14 +29,14 @@
       expect "assword:"
       send -- "linux\r"
       expect {
-      "assword:" { exit 1}
-       eof { exit 0 }
-       }
+        "assword:" { exit 1}
+        eof { exit 0 }
+      }
       foreach {pid spawnid os_error_flag value} [wait] break
       exit $value
-      EOF
-      return $?
-      }
+    EOF
+    return $?
+    }
     # The test fails if we could successfully log into hacluster
     if attempt_login; then echo passed; else echo blocked; fi
   check_mode: no
