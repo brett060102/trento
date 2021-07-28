@@ -38,8 +38,8 @@
     return $?
     }
     # The test fails if we could successfully log into hacluster
-    if attempt_login; then echo passed; else echo blocked; fi
-  #check_mode: no
+    if $(attempt_login); then echo passed; else echo blocked; fi
+  check_mode: no
   register: config_updated
   changed_when: config_updated.stdout != expected[test_id]
 
