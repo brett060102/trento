@@ -182,3 +182,20 @@
         name: '1.4.2'
       tags:
         - 1.4.2
+
+    - name: Set Global Results
+      set_fact:
+        global_results: "{{ (global_results |  default({})) | combine(hostvars[item]['tests']) }}"
+      with_inventory_hostnames:
+        - all
+      run_once: yes
+      delegate_to: localhost
+
+    - name: Post Global Results To ARA
+      ara_record:
+        key: "trento-results"
+        value: "{{ global_results | to_nice_json  }}"
+        type: json
+      run_once: yes
+      delegate_to: localhost
+      changed_when: false
